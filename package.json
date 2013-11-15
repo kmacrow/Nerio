@@ -1,0 +1,14 @@
+{ "name": "nerio"
+, "description": "A safe subset of JavaScript for running untrusted third-party code."
+, "version": "0.1.0"
+, "author": "Kalan MacRow <kalanwm@cs.ubc.ca> (http://twitter.com/k16w)"
+, "repository": { "type": "git", "url": "git://github.com/kmacrow/Nerio.git" }
+, "keywords": ["javascript", "lint"]
+, "licenses": [ { "type": "GPL", "url": "http://www.gnu.org/copyleft/gpl.html" } ]
+, "main": "./lib"
+, "homepage": "http://github.com/kmacrow/Nerio"
+, "engines": { "node": ">= 0.4.0" }
+, "dependencies": { }
+, "directories": { "bin": "./bin" }
+, "bin": { "nerio": "./bin/nerio" }
+, "preferGlobal": true }
