@@ -12,7 +12,6 @@ To get started with Nerio you should have <a href="http://nodejs.org">Node.js</a
 
 ```bash
 npm install -g nerio
-
 ```
 
 Then you can use <code>nerio</code> on the command line, or the programmatic API:
