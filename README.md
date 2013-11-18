@@ -11,10 +11,16 @@ Sometimes you'd like to allow third-party code to run as part of a page or appli
 To get started with Nerio you should have <a href="http://nodejs.org">Node.js</a> installed on your system. 
 
 ```bash
-npm install -g nerio
+npm install -g git@github.com:kmacrow/Nerio.git
 ```
 
-Then you can use <code>nerio</code> on the command line, or the programmatic API:
+Then you can use <code>nerio</code> on the command line,
+
+```bash
+$ echo "var PI = 3.14;" | nerio
+```
+
+or the programmatic API:
 
 ```javascript
 nerio = require('nerio');
