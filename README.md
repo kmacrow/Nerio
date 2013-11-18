@@ -4,7 +4,7 @@ Nerio is a safe subset of JavaScript, not unlike <a href="#">Adsafe</a>, that he
 
 # Background
 
-Sometimes you'd like to allow third-party code to run as part of a page or application. Unfortunately, it's hard to know what nefarious things someone else's code might do. Nerio defines a subset of JavaScript and provides some simple tools and models for checking that an arbitrary piece of JavaScript code is valid Nerio. Static analysis has the benefit that once code is checked, it can run at full speed whether in the browser or a server-side engine. Alternatives involving virtual machines compiled to <a href="http://asmjs.org">asm.js</a> can be two orders of magnitude slower.
+Sometimes you'd like to allow third-party code to run as part of a page or application. Unfortunately, it's hard to know what nefarious things someone else's code might do. Nerio defines a subset of JavaScript and provides some simple tools and models for checking that an arbitrary piece of JavaScript code is valid Nerio. Static analysis has the benefit that once code is checked, it can run at full speed whether in the browser or a server-side engine. Alternatives involving JavaScript interpreters compiled to <a href="http://asmjs.org">asm.js</a> can be two orders of magnitude slower. WebWorker sandboxes require a virtual DOM, which is also potentially very slow.
 
 # Getting started
 

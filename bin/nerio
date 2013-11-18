@@ -1,1 +1,22 @@
 #!/usr/bin/env node
+
+
+var argv    = require('optimist').argv;
+var fs      = require('fs');
+var esprima = require('esprima');
+
+var code = '';
+
+// read some code on stdin, parse it, and dump the ast
+
+process.stdin.resume();
+process.stdin.setEncoding('utf-8');
+
+process.stdin.on('data', function(buf) { code += buf; });
+
+process.stdin.on('end', function() {
+
+    var ast = esprima.parse(code);
+    console.log(JSON.stringify(ast));
+
+});

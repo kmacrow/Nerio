@@ -7,8 +7,8 @@
 , "licenses": [ { "type": "GPL", "url": "http://www.gnu.org/copyleft/gpl.html" } ]
 , "main": "./lib"
 , "homepage": "http://github.com/kmacrow/Nerio"
-, "engines": { "node": ">= 0.4.0" }
-, "dependencies": { }
+, "engines": { "node": ">=0.6.0" }
+, "dependencies": { "esprima": ">=1.0.4", "optimist": ">=0.6.0" }
 , "directories": { "bin": "./bin" }
 , "bin": { "nerio": "./bin/nerio" }
 , "preferGlobal": true }
