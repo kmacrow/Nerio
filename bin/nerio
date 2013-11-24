@@ -4,6 +4,7 @@
 var argv    = require('optimist').argv;
 var fs      = require('fs');
 var esprima = require('esprima');
+var codegen = require('escodegen');
 
 var code = '';
 
