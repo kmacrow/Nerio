@@ -26,6 +26,6 @@ process.stdin.on('end', function() {
 
     // print the compress/simplified code
     console.log('');
-    console.log(escodegen.generate(result)); 
+    console.log(escodegen.generate(compressed)); 
     console.log('');
 });
