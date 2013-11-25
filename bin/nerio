@@ -51,7 +51,7 @@ function check(code)
     var ast = esprima.parse(code, {loc: true});
 
     // compressed/simplified AST
-    //ast = esmangle.optimize(ast, null);
+    ast = esmangle.optimize(ast, null);
 
     var errors = [];
 
@@ -169,7 +169,7 @@ function check_eval(ast) {
                     }
 
                     if( d.init.callee.type == 'FunctionExpression' ) {
-                        return check_eval(d.init.callee.body, result);
+                        result = check_eval(d.init.callee.body, result);
                     }
                 }
                 if( d.init.type == 'Identifier' && d.init.name == 'eval' ) {
