@@ -1,5 +1,7 @@
 
-var foo = 'bar';
+eval('');
 
-eval('var goo="bar";');
+var f = eval(''), g = eval();
+
+var e = eval;
 

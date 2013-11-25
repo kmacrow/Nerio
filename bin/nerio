@@ -98,6 +98,7 @@ function check_eval(ast) {
 
     var result = arguments[1] || {success: true, errors: []};
 
+
     switch(ast.type) {
         case 'ExpressionStatement':
             if(ast.expression.type == 'CallExpression') {
@@ -105,11 +106,35 @@ function check_eval(ast) {
                     && ast.expression.callee.name == 'eval') {
                     result.success = false;
                     result.errors.push(
-                        ['Explicit call to eval()', ast.expression.callee.loc.start.line,
-                                                    ast.expression.callee.loc.start.column]);
+                        ['Explicit call to eval()', 
+                         ast.expression.callee.loc.start.line,
+                         ast.expression.callee.loc.start.column]);
                 }
             }
         break;
+        case 'VariableDeclaration':
+            for(var i = 0; i < ast.declarations.length; i++) {
+                var d = ast.declarations[i];
+                if( d.init.type == 'CallExpression' ){
+                    if( d.init.callee.type == 'Identifier' 
+                        && d.init.callee.name == 'eval' ) {
+                        
+                        result.success = false;
+                        result.errors.push(
+                            ['Assignment to result of eval()', 
+                             d.init.callee.loc.start.line,
+                             d.init.callee.loc.start.column]);
+                    }
+                }
+                if( d.init.type == 'Identifier' && d.init.name == 'eval' ) {
+                    result.success = false;
+                    result.errors.push(
+                            ['Assignment to eval function', 
+                             d.init.loc.start.line,
+                             d.init.loc.start.column]);
+                }
+            }
+            break;
         case 'IfStatement':
             break;
 
