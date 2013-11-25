@@ -48,10 +48,10 @@ function check(code)
 {
 
     // initial AST (abstract syntax tree)
-    var ast = esprima.parse(code, {loc: true}),
+    var ast = esprima.parse(code, {loc: true});
 
     // compressed/simplified AST
-    compressed = esmangle.optimize(ast, null);
+    //ast = esmangle.optimize(ast, null);
 
     var errors = [];
 
@@ -60,10 +60,10 @@ function check(code)
         // add others here...
     };
 
-    for(var i = 0; i < compressed.body.length; i++ ) {
+    for(var i = 0; i < ast.body.length; i++ ) {
         for(var chk in checks) {
 
-            var result = checks[chk]( compressed.body[i] );
+            var result = checks[chk]( ast.body[i] );
             
             if( !result.success ) {
                 errors = errors.concat( result.errors.map(function(e){
@@ -100,8 +100,13 @@ function check_eval(ast) {
 
 
     switch(ast.type) {
+
+        case 'BinaryExpression':
+            break;
+
         case 'ExpressionStatement':
-            if(ast.expression.type == 'CallExpression') {
+
+            if( ast.expression.type == 'CallExpression' ) {
                 if( ast.expression.callee.type == 'Identifier' 
                     && ast.expression.callee.name == 'eval') {
                     result.success = false;
@@ -111,8 +116,45 @@ function check_eval(ast) {
                          ast.expression.callee.loc.start.column]);
                 }
             }
-        break;
+
+            if( ast.expression.type == 'AssignmentExpression' ) {
+                // binary expressions
+            }
+
+            break;
+
+        case 'ReturnStatement':
+
+            if( ast.argument.type == 'CallExpression' ) {
+                if( ast.argument.callee.type == 'Identifier'
+                    && ast.argument.callee.name == 'eval' ) {
+                    
+                    result.success = false;
+                    result.errors.push([
+                        'Return value is call to eval()',
+                        ast.argument.callee.loc.start.line,
+                        ast.argument.callee.loc.start.column]);
+                }
+            }
+
+            if( ast.argument.type == 'Identifier'
+                && ast.argument.name == 'eval' ) {
+
+                result.success = false;
+                result.errors.push([
+                        'Return value is eval function.',
+                        ast.argument.loc.start.line,
+                        ast.argument.loc.start.column]);
+            }
+
+            if( ast.argument.type == 'FunctionExpression' ) {
+                result = check_eval(ast.argument.callee.body, result);
+            }
+
+            break;
+
         case 'VariableDeclaration':
+            
             for(var i = 0; i < ast.declarations.length; i++) {
                 var d = ast.declarations[i];
                 if( d.init.type == 'CallExpression' ){
@@ -125,6 +167,10 @@ function check_eval(ast) {
                              d.init.callee.loc.start.line,
                              d.init.callee.loc.start.column]);
                     }
+
+                    if( d.init.callee.type == 'FunctionExpression' ) {
+                        return check_eval(d.init.callee.body, result);
+                    }
                 }
                 if( d.init.type == 'Identifier' && d.init.name == 'eval' ) {
                     result.success = false;
@@ -135,10 +181,15 @@ function check_eval(ast) {
                 }
             }
             break;
+
         case 'IfStatement':
             break;
 
         case 'BlockStatement':
+
+            for( var i = 0; i < ast.body.length; i++ ) {
+                result = check_eval(ast.body[i], result);
+            }
             break;
     }
     
