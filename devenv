@@ -1,4 +1,17 @@
 #!/usr/bin/env bash
 
+pushd /opt
+
 apt-get update
-apt-get install nodejs npm
+
+# install bleeding edge nodejs, the one in apt is too old
+wget http://nodejs.org/dist/v0.10.22/node-v0.10.22-linux-x64.tar.gz
+tar -xzvf node-v0.10.22-linux-x64.tar.gz
+ln -sf /opt/node-v0.10.22-linux-x64/bin/node /usr/bin/node
+ln -sf /opt/node-v0.10.22-linux-x64/bin/npm /usr/bin/npm
+
+popd
+
+# link the project in as if it were installed
+# allows you to edit code without rebuilding/installing
+npm link

@@ -4,7 +4,8 @@
 var argv    = require('optimist').argv;
 var fs      = require('fs');
 var esprima = require('esprima');
-var codegen = require('escodegen');
+var escodegen = require('escodegen');
+var esmangle  = require('esmangle');
 
 var code = '';
 
@@ -17,7 +18,14 @@ process.stdin.on('data', function(buf) { code += buf; });
 
 process.stdin.on('end', function() {
 
-    var ast = esprima.parse(code);
-    console.log(JSON.stringify(ast));
+    // initial AST (abstract syntax tree)
+    var ast = esprima.parse(code),
 
+    // compressed/simplified AST
+    compressed = esmangle.optimize(ast, null);
+
+    // print the compress/simplified code
+    console.log('');
+    console.log(escodegen.generate(result)); 
+    console.log('');
 });
