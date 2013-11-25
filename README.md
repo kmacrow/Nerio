@@ -11,7 +11,7 @@ Sometimes you'd like to allow third-party code to run as part of a page or appli
 To get started with Nerio you should have the latest <a href="http://nodejs.org">Node.js</a> (including <code>npm</code>) installed on your system. There is a <code>devenv</code> script included that will install it for you on unix-like platforms. Note: you need to download <code>node</code> and <code>npm</code> directly from <a href="http://nodejs.org">nodejs.org</a> becuase the version tracked by most package managers is too old.  
 
 ```bash
-npm install -g git@github.com:kmacrow/Nerio.git
+npm install -g nerio
 ```
 
 Then you can use <code>nerio</code> on the command line,
