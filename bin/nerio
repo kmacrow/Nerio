@@ -16,7 +16,7 @@ if( argv._.length ) {
             return console.log( err );
         }
 
-        check( code );
+        main( code );
     });
 
 // or, read code from stdin...
@@ -29,9 +29,14 @@ if( argv._.length ) {
     process.stdin.on('data', function(buf) { code += buf; });
     process.stdin.on('end', function() {
 
-        check( code );
+        main( code );
     
     });
+}
+
+function main(code) {
+    var passed = check(code);
+    process.exit(passed ? 0 : 1);
 }
 
 /**
@@ -48,7 +53,7 @@ function check(code)
     // compressed/simplified AST
     compressed = esmangle.optimize(ast, null);
 
-    var passed = true, errors = [];
+    var errors = [];
 
     var checks = {
         'EVAL': check_eval
@@ -62,7 +67,7 @@ function check(code)
             
             if( !result.success ) {
                 errors = errors.concat( result.errors.map(function(e){
-                    return chk + ': ' + e;
+                    return [chk + ': ' + e[0], e[1], e[2]];
                 }) );
             }
 
@@ -70,16 +75,17 @@ function check(code)
     }    
 
 
-    if ( !passed ) {
-        console.log('Errors:');
+    if ( errors.length ) {
+        console.log('Failed:');
         for( var i = 0; i < errors.length; i++ ) {
-            console.log( errors[i] );
+            var err = errors[i];
+            console.log( err[0] + ' at ' + err[1] + ':' + err[2] );
         }
-        process.exit(1);
+        return false;
     }
 
     console.log('Passed.');
-    process.exit(0);
+    return true;
 
 }
 
@@ -90,6 +96,27 @@ function check(code)
 **/
 function check_eval(ast) {
 
-    return {success: true, errors: []};
+    var result = arguments[1] || {success: true, errors: []};
+
+    switch(ast.type) {
+        case 'ExpressionStatement':
+            if(ast.expression.type == 'CallExpression') {
+                if( ast.expression.callee.type == 'Identifier' 
+                    && ast.expression.callee.name == 'eval') {
+                    result.success = false;
+                    result.errors.push(
+                        ['Explicit call to eval()', ast.expression.callee.loc.start.line,
+                                                    ast.expression.callee.loc.start.column]);
+                }
+            }
+        break;
+        case 'IfStatement':
+            break;
+
+        case 'BlockStatement':
+            break;
+    }
+    
+    return result;
 
 }
