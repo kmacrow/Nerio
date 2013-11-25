@@ -1,23 +1,42 @@
 #!/usr/bin/env node
 
-
-var argv    = require('optimist').argv;
-var fs      = require('fs');
+var fs = require('fs');
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 var esmangle  = require('esmangle');
+var argv = require('optimist').argv;
 
-var code = '';
 
-// read some code on stdin, parse it, and dump the ast
+// take a file name from the command line
+if( argv._.length ) {
 
-process.stdin.resume();
-process.stdin.setEncoding('utf-8');
+    fs.readFile(argv._[0], 'utf-8', function(err, code) {
+        
+        if( err ) {
+            return console.log( err );
+        }
 
-process.stdin.on('data', function(buf) { code += buf; });
+        check( code );
+    });
 
-process.stdin.on('end', function() {
+// or, read code from stdin...
+} else {
 
+    var code = '';
+
+    process.stdin.resume();
+    process.stdin.setEncoding('utf-8');
+    process.stdin.on('data', function(buf) { code += buf; });
+    process.stdin.on('end', function() {
+
+        check( code );
+    
+    });
+}
+
+// check the code
+function check(code) 
+{
     // initial AST (abstract syntax tree)
     var ast = esprima.parse(code),
 
@@ -28,4 +47,5 @@ process.stdin.on('end', function() {
     console.log('');
     console.log(escodegen.generate(compressed)); 
     console.log('');
-});
+
+}

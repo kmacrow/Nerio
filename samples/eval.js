@@ -1,0 +1,2 @@
+eval('var goo="bar";');
+
