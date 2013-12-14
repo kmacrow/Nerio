@@ -29,36 +29,36 @@ There is a substantial body of work related to Nerio, from the research communit
 <i>js.js</i> - <a href="https://github.com/jterrace/js.js/">GitHub page</a><br /> 
 A JS interpreter in JS, so you can sandbox while you sandbox. 
 
-<i>Treehouse</i> - <a href="https://www.usenix.org/system/files/conference/atc12/atc12-final159.pdf">ATC '12 paper</a>
+<i>Treehouse</i> - <a href="https://www.usenix.org/system/files/conference/atc12/atc12-final159.pdf">ATC '12 paper</a><br />
 Loads a "broker" into a WebWorker. Interposes on browser APIs, freezes them, then runs code against a virtual DOM via message passing with main thread.
 
 <b>Static analysis</b>
 
-<i>FBJS</i> - <a href="https://developers.facebook.com/blog/post/189/">Developer page</a>
+<i>FBJS</i> - <a href="https://developers.facebook.com/blog/post/189/">Developer page</a><br />
 Facebook App JS subset (proprietary)
 
-<i>Gatekeeper</i> - <a href="http://research.microsoft.com/pubs/81084/usenixsec09a.pdf">USENIX SEC '09 paper</a>
+<i>Gatekeeper</i> - <a href="http://research.microsoft.com/pubs/81084/usenixsec09a.pdf">USENIX SEC '09 paper</a><br />
 Static analysis + code rewriting to safe subset of JS
 
-<i>Adsafety</i> - <a href="http://cs.brown.edu/research/plt/dl/adsafety/v1/adsafety.pdf">Website</a>
+<i>Adsafety</i> - <a href="http://cs.brown.edu/research/plt/dl/adsafety/v1/adsafety.pdf">Website</a><br />
 Verifying static checkers (in this case Adsafe)
 
 <i>Adsafe</i> - <a href="http://www.adsafe.org">adsafe.org</a> (<a href="https://github.com/douglascrockford/ADsafe">GitHub page</a>)<br />
 A subset of JS safe for embedding in ads
 
-<i>Browsershield</i> - <a href="http://research.microsoft.com/en-us/projects/shield/bshield-osdi2006.pdf">OSDI '06 paper</a>
+<i>Browsershield</i> - <a href="http://research.microsoft.com/en-us/projects/shield/bshield-osdi2006.pdf">OSDI '06 paper</a><br />
 Complete JS/HTML rewriting to safe widgets 
 
-<i>Websandbox</i> - <a href="http://www.websandbox.org">websandbox.org</a>
+<i>Websandbox</i> - <a href="http://www.websandbox.org">websandbox.org</a><br />
 Similar to Browsershield (also by MS), rewrites all web content into safe widgets
 
-<i>Caja</i> - <a href="https://code.google.com/p/google-caja/">Google Code</a>
+<i>Caja</i> - <a href="https://code.google.com/p/google-caja/">Google Code</a><b r/>
 Ca-pabilities based Ja-vascript. Weird, supposed to pronounce as “Caha” from the Spanish “safe” or “box”. Rewrites html, css, JavaScript to a safe version.
 
 
 # Conclusions
 
-So far Nerio is a humble prototype, only a shadow of what we have planned for it. That said, the flexibility and effectiveness of our prototype is promising and we hope to continue building it out into a more sophisticated and practicable tool as future work. Static analysis at the AST level is quite difficult, and especially so for a dynamic, mixed-paradigm language like JavaScript. We hope that eventually Nerio will enable a class of browser-based applications that can make stronger guarantees about where our personal data can and cannot end up. 
+So far Nerio is a humble prototype, only a shadow of what we have planned for it. That said, the flexibility and effectiveness of our prototype is promising and we hope to continue building it out into a more sophisticated and practicable tool as future work. Static analysis at the AST level is quite difficult, and especially so for a dynamic, mixed-paradigm language like JavaScript. We hope that eventually Nerio will enable a class of browser-based applications that can make stronger guarantees about where our personal data can, and cannot, end up. 
 
 
 # Getting started
