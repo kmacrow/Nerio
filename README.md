@@ -2,11 +2,7 @@
 <img src="https://dl.dropboxusercontent.com/u/55111805/nerio.png" style="width:160px" />
 </div>
 
-<div align="center">
-# Nerio
-</div>
-
-Nerio is a "safe" subset of JavaScript, not unlike <a href="#">Adsafe</a>, that helps you run untrusted code without allowing it access to various language and browser features.
+<b>Nerio</b> is a "safe" subset of JavaScript, not unlike <a href="#">Adsafe</a>, that helps you run untrusted code without allowing it access to various language and browser features.
 
 # Background
 
