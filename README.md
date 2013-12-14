@@ -108,8 +108,9 @@ There is also an API compiled for use directly in the browser.
 </script>
 ``` 
 
+<br /><br />
 <div align="center">
-Nerio is licensed under the GPL v3.
+Nerio is licensed under the GPL v3.<br /><br />
 
 Copyright &copy; 2013-14 RJ Sumi and Kalan MacRow (<a href="#">@k16w</a>)
 </div>
