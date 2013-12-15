@@ -20,6 +20,20 @@ Nerio provides a simple command line tool as well as several programmatic interf
 
 Nerio is implemented entirely in JavaScript. The excellent <a href="http://esprima.org">Esprima</a> parsing engine is used to parse raw JavaScript code into the standard Mozilla <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey">SpiderMonkey</a> AST data structure. <a href="https://github.com/Constellation/esmangle">esmangle</a> is used to "compress" (remove redundancy, dead code, and normalize syntax in) the AST structure. Nerio then makes several passes over the AST looking for function call sites, identifiers, and symbols that look suspicious. Nerio does not fail early: instead it looks at all of the code and reports any problems found, which is potentially useful for debugging repeated violations or to derive a sense of just how problematic the code is. Internally, Nerio is designed to be modular: modules that implement different checks register themselves with a central engine which orchestrates their execution over the AST and collects violations in a standard way. We are also working on some experimental code-rewriting features in which we rewrite the AST on the fly to wrap suspicious code in runtime checks and then use <a href="https://github.com/Constellation/escodegen">escodegen</a> to generate JavaScript from the transformed AST. 
 
+# Features
+
+We inspect a number of language and browser API features. Our approach is to compress/optimize the AST before searching for problematic features so that the number of cases (or corner cases) is minimized. JavaScript's syntactic flexibility can manifest use of one feature in the same way as several different ASTs, compressing the AST generally converts all instances to a single, optimal structure.
+
+<b>Language</b>
+
+1. <code>eval()</code> enables arbitrary code execution.
+2. Use of <code>obj[key]</code> object access when obj is special (see below) and key is not literal.
+
+<b>Browser API</b>
+
+References to <code>window</code>, <code>XMLHttpRequest</code>, <code>document</code>, and <code>WebWorker</code>.
+
+The above global objects or classes enable manipulation of the DOM, direct or indirect initiation of network requests (think image <code>src</code> attribute) or create new code execution flows. While this might seem like a short list, these features and API objects represent most of the surface that a potentially malicious script could make use of. As it turns out, detecting potential references to these objects and functions in JavaScript <i>is fairly challenging.</i>     
 
 # Related work
 
