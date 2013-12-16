@@ -1,10 +1,24 @@
 #!/usr/bin/env node
 
+/**
+ * Nerio implements an event-driven JavaScript parser
+ * and two modules that inspect the AST for 
+ * restricted features and function calls.
+ *
+**/
+
 var fs = require('fs');
+var EventEmitter = require('events').EventEmitter;
 var esprima = require('esprima');
 var escodegen = require('escodegen');
 var esmangle  = require('esmangle');
 var argv = require('optimist').argv;
+
+// global internal event bus
+var events = new EventEmitter();
+
+// global internal errors 
+var errors = [];
 
 
 // take a file name from the command line
@@ -39,10 +53,42 @@ function main(code) {
     process.exit(passed ? 0 : 1);
 }
 
+
+/**
+ * MODULE: language features
+ *
+**/
+events.on('Identifier', function(name, line, col) {
+    
+    if ( name == 'eval' ) {
+
+        errors.push(['Illegal reference to eval()', line, col]);
+    
+    }
+
+});
+
+/** 
+ * MODULE: browser APIs
+ *
+**/
+events.on('Identifier', function(name, line, col) {
+    
+    if( [        'window', 'document', 
+             'setTimeout', 'setInterval', 
+          'clearInterval', 'WebWorker',
+         'XMLHttpRequest', 'localStorage',
+         'sessionStorage', 'IndexedDB'].indexOf(name) != -1 ) {
+
+        errors.push(['Illegal reference to "' + name + '"', line, col]);
+    }
+
+});
+
 /**
  * Push code through all available checks
  *
- * code - a string containing javascript
+ * code - a string containing JavaScript
 **/
 function check(code) 
 {
@@ -51,27 +97,15 @@ function check(code)
     var ast = esprima.parse(code, {loc: true});
 
     // compressed/simplified AST
-    ast = esmangle.optimize(ast, null);
+    // ast = esmangle.optimize(ast, null);
 
-    var errors = [];
-
-    var checks = {
-        'EVAL': check_eval
-        // add others here...
-    };
+    // reset errors
+    errors = [];
 
     for(var i = 0; i < ast.body.length; i++ ) {
-        for(var chk in checks) {
+        
+        check_ast(ast.body[i]);
 
-            var result = checks[chk]( ast.body[i] );
-            
-            if( !result.success ) {
-                errors = errors.concat( result.errors.map(function(e){
-                    return [chk + ': ' + e[0], e[1], e[2]];
-                }) );
-            }
-
-        }
     }    
 
 
@@ -90,109 +124,138 @@ function check(code)
 }
 
 /**
- * Recursively check ast subtree for calls to eval
+ * Recursively walk AST subtree emitting events at nodes
  * 
  * ast - the ast subtree
 **/
-function check_eval(ast) {
-
-    var result = arguments[1] || {success: true, errors: []};
-
+function check_ast(ast) {
 
     switch(ast.type) {
 
+        case 'Identifier':
+            events.emit('Identifier', 
+                         ast.name, 
+                         ast.loc.start.line,
+                         ast.loc.start.column);
+            break;
+
         case 'BinaryExpression':
+        case 'LogicalExpression':
+        case 'AssignmentExpression':
+
+            events.emit(ast.type, 
+                        ast.left, ast.right, 
+                        ast.left.loc.start.line,
+                        ast.left.loc.start.column);
+
+            check_ast(ast.left);
+            check_ast(ast.right);
+
+            break;
+
+        case 'MemberExpression':
+
+            var computed = ast.computed;
+
+            events.emit('MemberExpression',
+                        ast.object, ast.property, computed,
+                        ast.object.loc.start.line,
+                        ast.object.loc.start.column);
+
+            check_ast(ast.object);
+            check_ast(ast.property);
+            
+            break;
+
+        case 'NewExpression':
+        case 'CallExpression':
+    
+            switch(ast.callee.type) {
+                case 'Identifier':
+                case 'MemberExpression':
+                case 'FunctionExpression':
+
+                    check_ast(ast.callee);    
+                    break;
+            }
+
+            events.emit(ast.type,
+                        ast.callee, ast.arguments,
+                        ast.loc.start.line,
+                        ast.loc.start.column);
+            
+            for( var i = 0; i < ast.arguments.length; i++ ) {
+                check_ast( ast.arguments[i] );
+            }
+
             break;
 
         case 'ExpressionStatement':
 
-            if( ast.expression.type == 'CallExpression' ) {
-                if( ast.expression.callee.type == 'Identifier' 
-                    && ast.expression.callee.name == 'eval') {
-                    result.success = false;
-                    result.errors.push(
-                        ['Explicit call to eval()', 
-                         ast.expression.callee.loc.start.line,
-                         ast.expression.callee.loc.start.column]);
-                }
-            }
+            check_ast(ast.expression);
 
-            if( ast.expression.type == 'AssignmentExpression' ) {
-                // binary expressions
-            }
+            break;
+
+        case 'FunctionExpression':
+
+            check_ast(ast.body);
 
             break;
 
         case 'ReturnStatement':
 
-            if( ast.argument.type == 'CallExpression' ) {
-                if( ast.argument.callee.type == 'Identifier'
-                    && ast.argument.callee.name == 'eval' ) {
-                    
-                    result.success = false;
-                    result.errors.push([
-                        'Return value is call to eval()',
-                        ast.argument.callee.loc.start.line,
-                        ast.argument.callee.loc.start.column]);
-                }
-            }
+            events.emit('ReturnStatement',
+                        ast.argument,
+                        ast.loc.start.line,
+                        ast.loc.start.column);
 
-            if( ast.argument.type == 'Identifier'
-                && ast.argument.name == 'eval' ) {
-
-                result.success = false;
-                result.errors.push([
-                        'Return value is eval function.',
-                        ast.argument.loc.start.line,
-                        ast.argument.loc.start.column]);
-            }
-
-            if( ast.argument.type == 'FunctionExpression' ) {
-                result = check_eval(ast.argument.callee.body, result);
-            }
+            check_ast(ast.argument);
 
             break;
 
         case 'VariableDeclaration':
             
             for(var i = 0; i < ast.declarations.length; i++) {
-                var d = ast.declarations[i];
-                if( d.init.type == 'CallExpression' ){
-                    if( d.init.callee.type == 'Identifier' 
-                        && d.init.callee.name == 'eval' ) {
-                        
-                        result.success = false;
-                        result.errors.push(
-                            ['Assignment to result of eval()', 
-                             d.init.callee.loc.start.line,
-                             d.init.callee.loc.start.column]);
-                    }
 
-                    if( d.init.callee.type == 'FunctionExpression' ) {
-                        result = check_eval(d.init.callee.body, result);
-                    }
-                }
-                if( d.init.type == 'Identifier' && d.init.name == 'eval' ) {
-                    result.success = false;
-                    result.errors.push(
-                            ['Assignment to eval function', 
-                             d.init.loc.start.line,
-                             d.init.loc.start.column]);
-                }
+                events.emit('VariableDeclaration',
+                            ast.declarations[i].id,
+                            ast.declarations[i].init,
+                            ast.loc.start.line,
+                            ast.loc.start.column);
+
+                check_ast( ast.declarations[i].init );
             }
+
             break;
 
         case 'IfStatement':
+        case 'ConditionalExpression':
+            
+            events.emit(ast.type,
+                        ast.test,
+                        ast.loc.start.line,
+                        ast.loc.start.column);
+
+            check_ast(ast.test);
+            check_ast(ast.consequent);
+
+            if( ast.alternate ) {
+                check_ast(ast.alternate);
+            }
+
             break;
 
         case 'BlockStatement':
 
             for( var i = 0; i < ast.body.length; i++ ) {
-                result = check_eval(ast.body[i], result);
+                check_ast(ast.body[i]);
             }
+
+            break;
+
+        default:
+            // unknown AST node type...
             break;
     }
-    
-    return result;
 
 }
