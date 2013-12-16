@@ -70,15 +70,20 @@ events.on('Identifier', function(name, line, col) {
 
 events.on('MemberExpression', function(obj, prop, computed, line, col) { 
 
-    if( !computed )
-        // computed implies obj[key] syntax as opposed to obj.key
-        return;
-
     if(obj.type != 'Identifier') 
         return;
 
     if( ['window', 'document'].indexOf(obj.name) != -1 ) {
-        errors.push(['Illegal use of computed property on "'+obj.name+'"', line, col]);
+        if(!computed)
+            errors.push(['Illegal use of computed property on "'+obj.name+'"', line, col]);
+        if(prop.type == 'Identifier' && 
+            [    'setTimeout', 'setInterval', 'createElement', 
+            'querySelector', 'querySelectorAll', 
+          'clearInterval', 'WebWorker',
+         'XMLHttpRequest', 'ActiveXObject', 'localStorage',
+         'sessionStorage', 'IndexedDB'].indexOf(prop.name) != -1) {
+            errors.push(['Illegal use of window member "'+prop.name+'"', line, col]);
+        }
     }
 
 });
@@ -92,9 +97,9 @@ events.on('Identifier', function(name, line, col) {
     // todo: this is a bit too simple
     //       these identifiers could legally appear on the left
     //       side of an expression, though it would be questionable.
-    if( [    'setTimeout', 'setInterval', 
+    if( [    'setTimeout', 'setInterval', 'createElement', 'querySelector', 'querySelectorAll',
           'clearInterval', 'WebWorker',
-         'XMLHttpRequest', 'localStorage',
+         'XMLHttpRequest', 'ActiveXObject', 'localStorage',
          'sessionStorage', 'IndexedDB'].indexOf(name) != -1 ) {
 
         errors.push(['Illegal reference to "' + name + '"', line, col]);
@@ -107,7 +112,7 @@ events.on('NewExpression', function(fn, args, line, col) {
     if( fn.type != 'Identifier' )
         return;
 
-    if(['WebWorker', 'XMLHttpRequest'].indexOf(fn.name) != -1) {
+    if(['WebWorker', 'XMLHttpRequest', 'ActiveXObject'].indexOf(fn.name) != -1) {
         errors.push(['Illegal instantiation of "'+fn.name+'"', line, col]);
     }
 
