@@ -30,4 +30,8 @@ window.setTimeout(function(){alert('Hello')}, 1000);
 
 ww = new WebWorker("scripts/bad.js");
 
+if( document ) {
+	alert('foo!');
+}
+
 

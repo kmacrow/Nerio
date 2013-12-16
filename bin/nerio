@@ -115,8 +115,6 @@ events.on('NewExpression', function(fn, args, line, col) {
 
 events.on('AssignmentExpression', function(left, right, line, col) {
 
-    console.log(arguments);
-
     if(left.type == 'Identifier') {
         if(['document', 'window'].indexOf(left.name) != -1) {
             errors.push(['Illegal assignment to "'+left.name+'"', line, col]);
@@ -133,15 +131,94 @@ events.on('AssignmentExpression', function(left, right, line, col) {
 
 events.on('BinaryExpression', function(left, right, line, col) {
 
+    if(left.type == 'Identifier') {
+        if(['document', 'window'].indexOf(left.name) != -1) {
+            errors.push(['Illegal reference to "'+left.name+'"', line, col]);
+        }
+    }
+
+    if(right.type == 'Identifier') {
+        if(['document', 'window'].indexOf(right.name) != -1) {
+            errors.push(['Illegal reference to "'+right.name+'"', line, col]);
+        }
+    }
 });
 
 events.on('LogicalExpression', function(left, right, line, col) {
 
+    if(left.type == 'Identifier') {
+        if(['document', 'window'].indexOf(left.name) != -1) {
+            errors.push(['Illegal reference to "'+left.name+'"', line, col]);
+        }
+    }
+
+    if(right.type == 'Identifier') {
+        if(['document', 'window'].indexOf(right.name) != -1) {
+            errors.push(['Illegal reference to "'+right.name+'"', line, col]);
+        }
+    }
 });
 
 events.on('VariableDeclaration', function(id, val, line, col){
 
+    if(id.type == 'Identifier') {
+        if(['document', 'window'].indexOf(id.name) != -1) {
+            errors.push(['Illegal assignment to "'+id.name+'"', line, col]);
+        }
+    }
+
+    if(val && val.type == 'Identifier') {
+        if(['document', 'window'].indexOf(val.name) != -1) {
+            errors.push(['Illegal reference to "'+val.name+'"', line, col]);
+        }
+    }
+
 });
+
+events.on('ReturnStatement', function(arg, line, col) {
+
+    if( !arg )
+        return;
+
+    if(arg.type == 'Identifier') {
+        if(['document', 'window'].indexOf(arg.name) != -1) {
+            errors.push(['Illegal return reference to "'+arg.name+'"', line, col]);   
+        }
+    }
+});
+
+events.on('NewExpression', function(callee, args, line, col){
+
+    for(var i = 0; i < args.length; i++) {
+        if(args[i].type == 'Identifier' && ['window','document'].indexOf(args[i].name) != -1) {
+            errors.push(['Illegal argument reference to "'+args[i].name+'"', line, col]);   
+        }
+    }
+});
+
+events.on('CallExpression', function(callee, args, line, col){
+
+    for(var i = 0; i < args.length; i++) {
+        if(args[i].type == 'Identifier' && ['window','document'].indexOf(args[i].name) != -1) {
+            errors.push(['Illegal argument reference to "'+args[i].name+'"', line, col]);   
+        }
+    }
+});
+
+events.on('IfStatement', function(test, line, col) {
+
+    if(test.type == 'Identifier' && ['window','document'].indexOf(test.name) != -1) {
+        errors.push(['Illegal condition test with "'+test.name+'"', line, col]);
+    }
+});
+
+events.on('ConditionalExpression', function(test, line, col) {
+
+    if(test.type == 'Identifier' && ['window','document'].indexOf(test.name) != -1) {
+        errors.push(['Illegal condition test with "'+test.name+'"', line, col]);
+    }
+});
+
 
 
 
@@ -189,6 +266,9 @@ function check(code)
  * ast - the ast subtree
 **/
 function check_ast(ast) {
+
+    if( !ast || !ast.hasOwnProperty('type') )
+        return;
 
     switch(ast.type) {
 
