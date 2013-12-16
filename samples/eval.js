@@ -17,10 +17,17 @@ if(eval()) { }
 
 a = 1 ? eval : null;
 
-window
+window = {}
+var a = window;
+
+window.title
+
+window['title']
 
 setTimeout();
 
 window.setTimeout(function(){alert('Hello')}, 1000);
+
+ww = new WebWorker("scripts/bad.js");
 
 

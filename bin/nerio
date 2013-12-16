@@ -68,14 +68,31 @@ events.on('Identifier', function(name, line, col) {
 
 });
 
+events.on('MemberExpression', function(obj, prop, computed, line, col) { 
+
+    if( !computed )
+        // computed implies obj[key] syntax as opposed to obj.key
+        return;
+
+    if(obj.type != 'Identifier') 
+        return;
+
+    if( ['window', 'document'].indexOf(obj.name) != -1 ) {
+        errors.push(['Illegal use of computed property on "'+obj.name+'"', line, col]);
+    }
+
+});
+
 /** 
  * MODULE: browser APIs
  *
 **/
 events.on('Identifier', function(name, line, col) {
     
-    if( [        'window', 'document', 
-             'setTimeout', 'setInterval', 
+    // todo: this is a bit too simple
+    //       these identifiers could legally appear on the left
+    //       side of an expression, though it would be questionable.
+    if( [    'setTimeout', 'setInterval', 
           'clearInterval', 'WebWorker',
          'XMLHttpRequest', 'localStorage',
          'sessionStorage', 'IndexedDB'].indexOf(name) != -1 ) {
@@ -84,6 +101,49 @@ events.on('Identifier', function(name, line, col) {
     }
 
 });
+
+events.on('NewExpression', function(fn, args, line, col) {
+
+    if( fn.type != 'Identifier' )
+        return;
+
+    if(['WebWorker', 'XMLHttpRequest'].indexOf(fn.name) != -1) {
+        errors.push(['Illegal instantiation of "'+fn.name+'"', line, col]);
+    }
+
+});
+
+events.on('AssignmentExpression', function(left, right, line, col) {
+
+    console.log(arguments);
+
+    if(left.type == 'Identifier') {
+        if(['document', 'window'].indexOf(left.name) != -1) {
+            errors.push(['Illegal assignment to "'+left.name+'"', line, col]);
+        }
+    }
+
+    if(right.type == 'Identifier') {
+        if(['document', 'window'].indexOf(right.name) != -1) {
+            errors.push(['Illegal reference to "'+right.name+'"', line, col]);
+        }
+    }
+
+});
+
+events.on('BinaryExpression', function(left, right, line, col) {
+
+});
+
+events.on('LogicalExpression', function(left, right, line, col) {
+
+});
+
+events.on('VariableDeclaration', function(id, val, line, col){
+
+});
+
+
 
 /**
  * Push code through all available checks
