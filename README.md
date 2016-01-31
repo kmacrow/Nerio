@@ -67,7 +67,7 @@ Complete JS/HTML rewriting to safe widgets
 <i>Websandbox</i> - <a href="http://www.websandbox.org">websandbox.org</a><br />
 Similar to Browsershield (also by MS), rewrites all web content into safe widgets
 
-<i>Caja</i> - <a href="https://code.google.com/p/google-caja/">Google Code</a><b r/>
+<i>Caja</i> - <a href="https://code.google.com/p/google-caja/">Google Code</a><br/>
 Ca-pabilities based Ja-vascript. Weird, supposed to pronounce as “Caha” from the Spanish “safe” or “box”. Rewrites html, css, JavaScript to a safe version.
 
 
@@ -78,7 +78,7 @@ So far Nerio is a humble prototype, only a shadow of what we have planned for it
 
 # Getting started
 
-To get started with Nerio you should have the latest <a href="http://nodejs.org">Node.js</a> (including <code>npm</code>) installed on your system. There is a <code>devenv</code> script included that will install it for you on unix-like platforms. Note: you need to download <code>node</code> and <code>npm</code> directly from <a href="http://nodejs.org">nodejs.org</a> becuase the version tracked by most package managers is too old.  
+To get started with Nerio you should have the latest <a href="http://nodejs.org">Node.js</a> (including <code>npm</code>) installed on your system. There is a <code>devenv</code> script included that will install it for you on unix-like platforms. Note: you need to download <code>node</code> and <code>npm</code> directly from <a href="http://nodejs.org">nodejs.org</a> because the version tracked by most package managers is too old.  
 
 ```bash
 npm install -g nerio
